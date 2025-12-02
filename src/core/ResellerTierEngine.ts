@@ -134,10 +134,22 @@ export class ResellerTierEngine {
      * Calculates the exact price for a product based on the user's tier.
      * Replaces static resellerPrice logic.
      */
-    public calculateProductPrice(product: Product, user: User | null): number {
+    /**
+     * Calculates the exact price for a product based on the user's tier.
+     * Replaces static resellerPrice logic.
+     */
+    public calculateProductPrice(product: Product | { price: number } | any, user: User | null): number {
+        // Determine base price
+        let basePrice = 0;
+        if ('basePrice' in product) {
+            basePrice = product.basePrice;
+        } else if ('price' in product) {
+            basePrice = product.price;
+        }
+
         // 1. Visitor / Customer Logic
         if (!user || user.role !== 'reseller') {
-            return product.price;
+            return basePrice;
         }
 
         // 2. Reseller Logic (Dynamic)
@@ -145,11 +157,11 @@ export class ResellerTierEngine {
 
         // Calculate dynamic price
         // Price = Retail - (Retail * DiscountMultiplier)
-        const dynamicPrice = product.price * (1 - metrics.discountMultiplier);
+        const dynamicPrice = basePrice * (1 - metrics.discountMultiplier);
 
         // 3. Margin Protection Rule
         // Ensure we never sell below cost (simulated as 50% of retail)
-        const costBasis = product.price * 0.5;
+        const costBasis = basePrice * 0.5;
         if (dynamicPrice < costBasis) {
             return costBasis;
         }

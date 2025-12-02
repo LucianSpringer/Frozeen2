@@ -1,16 +1,38 @@
 export type UserRole = 'admin' | 'reseller' | 'customer';
+export type OrderStatus = 'pending' | 'paid' | 'packing' | 'shipping' | 'completed' | 'cancelled';
+export type ResellerTier = 'STARTER' | 'SILVER' | 'GOLD' | 'PLATINUM';
 
+// 1. Expanded User Profile
 export interface User {
   id: string;
   name: string;
   email: string;
   role: UserRole;
-  phone?: string;
+  phone: string;
+  joinDate: string; // ISO Date
+  avatar?: string;
+
+  // Reseller Specifics
   referralCode?: string;
-  referralCount?: number; // New: For Affiliate Tracking
+  uplineId?: string; // Who recruited them?
+  tier?: ResellerTier;
   walletBalance?: number;
-  points: number; // New: Loyalty System
-  tierLevel?: 'STARTER' | 'GROWTH' | 'ENTERPRISE' | 'TITAN'; // Linked to Engine
+  totalSpend?: number;
+  points?: number; // Loyalty System
+  bankDetails?: {
+    bankName: string;
+    accountNumber: string;
+    holderName: string;
+  };
+}
+
+// 2. Product Variants & Batching
+export interface ProductVariant {
+  id: string;
+  name: string; // e.g., "Pedas 500gr"
+  price: number;
+  stock: number;
+  weight: number;
 }
 
 export interface Product {
@@ -18,39 +40,96 @@ export interface Product {
   name: string;
   category: string;
   description: string;
-  price: number;
-  resellerPrice: number;
+  basePrice: number; // Harga Ecer Base
+  resellerPrice: number; // Keep for backward compatibility or calculate dynamically
   image: string;
-  stock: number;
+
+  // Advanced Inventory
+  variants?: ProductVariant[]; // Optional for simple products
+  stock: number; // Simple stock
+  totalStock?: number; // Calculated from variants if present
   weight: number;
   minOrder: number;
-  // New Operations Fields
+  isActive: boolean;
+
+  // Badges & Ops
+  isBestSeller?: boolean;
+  isPromo?: boolean;
   batchId?: string;
   expiryDate?: string;
-  isHalal?: boolean;
-  bpomNumber?: string;
-  storageTemp?: string; // e.g. "-18C"
+
+  // Metrics
+  soldCount?: number;
 }
 
+// 3. Order Management "Super Lengkap"
 export interface CartItem extends Product {
   quantity: number;
+  selectedVariant?: ProductVariant; // If variant selected
+}
+
+export interface OrderItem {
+  productId: string;
+  variantId?: string;
+  productName: string;
+  variantName?: string;
+  priceAtPurchase: number;
+  quantity: number;
+  subtotal: number;
 }
 
 export interface Order {
   id: string;
   userId: string;
-  items: CartItem[];
+  user_name: string; // Denormalized for easier display
+  items: CartItem[]; // Reusing CartItem for simplicity in migration
+
+  // Financials
   totalAmount: number;
-  status: 'pending' | 'packing' | 'shipping' | 'completed' | 'cancelled';
+  shippingCost?: number;
+  grandTotal?: number; // totalAmount + shipping
+
+  // Status & Logistics
+  status: OrderStatus;
   date: string;
-  shippingAddress: string;
   paymentMethod: string;
-  // New Dropship Fields
-  isDropship: boolean;
+  paymentProofUrl?: string; // Image URL
+
+  shippingAddress: string;
+  courier?: string;
+  resi?: string;
+
+  // Dropship
+  isDropship?: boolean;
   dropshipSenderName?: string;
-  dropshipSenderPhone?: string;
-  // New Tracking
-  trackingHistory?: { status: string; timestamp: string; location: string }[];
+
+  // Activity Log
+  history?: {
+    status: OrderStatus;
+    timestamp: string;
+    updatedBy: string; // "System" or "Admin"
+  }[];
+}
+
+// 4. Admin Activity Log (Security)
+export interface ActivityLog {
+  id: string;
+  adminId: string;
+  action: string; // "UPDATE_PRICE", "APPROVE_RESELLER"
+  targetId: string; // ProductID or UserID
+  timestamp: string;
+  details: string;
+}
+
+// 5. Commission Ledger
+export interface CommissionTransaction {
+  id: string;
+  resellerId: string;
+  orderId: string; // Source of commission
+  amount: number;
+  type: 'SALES_BONUS' | 'REFERRAL_BONUS';
+  status: 'PENDING' | 'PAID';
+  date: string;
 }
 
 export const CATEGORIES = [
@@ -59,5 +138,6 @@ export const CATEGORIES = [
   "Bakso & Sosis",
   "Dimsum",
   "Cireng & Snack",
-  "Daging Olahan"
+  "Daging Olahan",
+  "Paket Usaha"
 ];

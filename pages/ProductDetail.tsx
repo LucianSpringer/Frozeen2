@@ -28,7 +28,7 @@ const ProductDetail: React.FC = () => {
   const isReseller = user?.role === 'reseller';
   const price = ResellerEngine.calculateProductPrice(product, user);
   const tierMetrics = user ? ResellerEngine.getTierMetrics(user) : null;
-  const isOutOfStock = product.stock <= 0;
+  const isOutOfStock = product.totalStock <= 0;
 
   const handleAddToCart = () => {
     if (!isOutOfStock) {
@@ -36,7 +36,7 @@ const ProductDetail: React.FC = () => {
     }
   };
 
-  const incrementQty = () => setQty(prev => Math.min(prev + 1, product.stock));
+  const incrementQty = () => setQty(prev => Math.min(prev + 1, product.totalStock));
   const decrementQty = () => setQty(prev => Math.max(1, prev - 1));
 
   return (
@@ -73,7 +73,7 @@ const ProductDetail: React.FC = () => {
                   <span className="bg-sky-100 dark:bg-sky-900/50 text-sky-700 dark:text-sky-300 px-3 py-1 rounded-full text-sm font-bold">
                     {product.category}
                   </span>
-                  <span className="text-slate-500 dark:text-slate-400 font-medium">{product.weight} gram</span>
+                  <span className="text-slate-500 dark:text-slate-400 font-medium">{product.variants[0]?.weight || 0} gram</span>
                 </div>
 
                 <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-4 leading-tight">{product.name}</h1>
@@ -81,7 +81,7 @@ const ProductDetail: React.FC = () => {
                 <div className="flex items-baseline gap-3 mb-6">
                   <span className="text-3xl font-bold text-sky-600 dark:text-sky-400">Rp {price.toLocaleString('id-ID')}</span>
                   {isReseller && (
-                    <span className="text-lg text-slate-400 line-through">Rp {product.price.toLocaleString('id-ID')}</span>
+                    <span className="text-lg text-slate-400 line-through">Rp {product.basePrice.toLocaleString('id-ID')}</span>
                   )}
                   <span className="text-sm text-slate-500 dark:text-slate-400 ml-2">/ pack</span>
                   {isReseller && tierMetrics && (
@@ -116,8 +116,8 @@ const ProductDetail: React.FC = () => {
               <div className="border-t border-slate-100 dark:border-slate-700 pt-6">
                 <div className="flex items-center justify-between mb-4">
                   <span className="font-bold text-slate-700 dark:text-slate-200">Jumlah Order</span>
-                  <span className={`text-sm font-medium ${product.stock < 10 ? 'text-orange-500' : 'text-green-600 dark:text-green-400'}`}>
-                    Stok Tersedia: {product.stock}
+                  <span className={`text-sm font-medium ${product.totalStock < 10 ? 'text-orange-500' : 'text-green-600 dark:text-green-400'}`}>
+                    Stok Tersedia: {product.totalStock}
                   </span>
                 </div>
 
@@ -138,7 +138,7 @@ const ProductDetail: React.FC = () => {
                     />
                     <button
                       onClick={incrementQty}
-                      disabled={isOutOfStock || qty >= product.stock}
+                      disabled={isOutOfStock || qty >= product.totalStock}
                       className="p-3 text-slate-500 dark:text-slate-400 hover:text-sky-600 dark:hover:text-sky-400 disabled:opacity-30"
                     >
                       <Plus size={20} />

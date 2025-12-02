@@ -140,12 +140,12 @@ export const StoreProvider = ({ children }: { children?: React.ReactNode }) => {
       id: Date.now().toString(),
       name,
       email,
+      phone: '08123456789', // Default mock phone
       role,
       walletBalance: role === 'reseller' ? 0 : undefined,
       referralCode: role === 'reseller' ? `REF${Math.floor(Math.random() * 1000)}` : undefined,
-      points: 0,
-      referralCount: 0,
-      tierLevel: 'STARTER'
+      tier: 'STARTER',
+      joinDate: new Date().toISOString()
     };
 
     setUser(newUser);
@@ -164,7 +164,14 @@ export const StoreProvider = ({ children }: { children?: React.ReactNode }) => {
         return prev.map(p => p.id === product.id ? { ...p, quantity: p.quantity + quantity } : p);
       }
       addNotification('success', 'Berhasil', `${product.name} masuk keranjang.`);
-      return [...prev, { ...product, quantity }];
+
+      const newItem: CartItem = {
+        ...product,
+        quantity,
+        selectedVariant: undefined
+      };
+
+      return [...prev, newItem];
     });
   };
 
@@ -195,15 +202,17 @@ export const StoreProvider = ({ children }: { children?: React.ReactNode }) => {
     const newOrder: Order = {
       id: `ORD-${Date.now()}`,
       userId: user.id,
+      user_name: user.name,
       items: [...cart],
       totalAmount,
+      shippingCost: 15000, // Mock shipping cost
+      grandTotal: totalAmount + 15000,
       status: 'pending',
       date: new Date().toISOString(),
       shippingAddress,
       paymentMethod,
-      isDropship: dropshipOptions?.isDropship || false,
-      dropshipSenderName: dropshipOptions?.dropshipSenderName,
-      dropshipSenderPhone: dropshipOptions?.dropshipSenderPhone
+      courier: 'JNE', // Default
+      history: [{ status: 'pending', timestamp: new Date().toISOString(), updatedBy: 'System' }]
     };
 
     setOrders(prev => [newOrder, ...prev]);

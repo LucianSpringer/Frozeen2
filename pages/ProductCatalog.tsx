@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 
 const ProductCatalog: React.FC = () => {
   const { products, user, addToCart } = useStore();
-  
+
   // States for Filtering & Sorting
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [searchTerm, setSearchTerm] = useState("");
@@ -18,10 +18,11 @@ const ProductCatalog: React.FC = () => {
   const [priceRange, setPriceRange] = useState({ min: 0, max: 1000000 });
 
   const getPrice = (product: any) => {
+    // Fallback for reseller price logic since it's not in schema yet
     if (user?.role === 'reseller') {
-      return product.resellerPrice;
+      return product.basePrice * 0.85; // Mock reseller discount
     }
-    return product.price;
+    return product.basePrice;
   };
 
   const filteredProducts = products
@@ -29,9 +30,9 @@ const ProductCatalog: React.FC = () => {
       const displayPrice = getPrice(p);
       const matchesCategory = selectedCategory === "Semua" || p.category === selectedCategory;
       const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || p.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStock = onlyAvailable ? p.stock > 0 : true;
+      const matchesStock = onlyAvailable ? p.totalStock > 0 : true;
       const matchesPrice = displayPrice >= priceRange.min && displayPrice <= priceRange.max;
-      
+
       return matchesCategory && matchesSearch && matchesStock && matchesPrice;
     })
     .sort((a, b) => {
@@ -44,7 +45,7 @@ const ProductCatalog: React.FC = () => {
   return (
     <div className="bg-slate-50 dark:bg-slate-900 min-h-screen py-8 pt-24 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Katalog Produk</h1>
@@ -63,14 +64,14 @@ const ProductCatalog: React.FC = () => {
             />
           </div>
           <div className="flex gap-2">
-            <button 
+            <button
               onClick={() => setShowFilters(!showFilters)}
               className={`px-4 py-3 rounded-lg border font-medium flex items-center gap-2 transition ${showFilters ? 'bg-sky-50 dark:bg-slate-700 border-sky-500 text-sky-600 dark:text-sky-400' : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300'}`}
             >
               <SlidersHorizontal size={18} /> Filter
             </button>
             <div className="relative">
-              <select 
+              <select
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value as any)}
                 className="appearance-none bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 py-3 pl-4 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 cursor-pointer"
@@ -98,11 +99,10 @@ const ProductCatalog: React.FC = () => {
                     <button
                       key={cat}
                       onClick={() => setSelectedCategory(cat)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${
-                        selectedCategory === cat 
-                        ? 'bg-sky-600 text-white' 
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${selectedCategory === cat
+                        ? 'bg-sky-600 text-white'
                         : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
-                      }`}
+                        }`}
                     >
                       {cat}
                     </button>
@@ -115,21 +115,21 @@ const ProductCatalog: React.FC = () => {
                 <h4 className="font-bold text-slate-800 dark:text-white mb-3 text-sm uppercase tracking-wide">Rentang Harga (Rp)</h4>
                 <div className="flex items-center gap-2">
                   <div className="relative flex-1">
-                     <span className="absolute left-3 top-2 text-xs text-slate-400">Min</span>
-                     <input 
-                      type="number" 
+                    <span className="absolute left-3 top-2 text-xs text-slate-400">Min</span>
+                    <input
+                      type="number"
                       value={priceRange.min}
-                      onChange={(e) => setPriceRange({...priceRange, min: Number(e.target.value)})}
+                      onChange={(e) => setPriceRange({ ...priceRange, min: Number(e.target.value) })}
                       className="w-full border dark:border-slate-600 rounded px-3 pt-5 pb-1 text-sm bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-sky-500 outline-none"
                     />
                   </div>
                   <span className="text-slate-400 font-bold">-</span>
-                   <div className="relative flex-1">
-                     <span className="absolute left-3 top-2 text-xs text-slate-400">Max</span>
-                     <input 
-                      type="number" 
+                  <div className="relative flex-1">
+                    <span className="absolute left-3 top-2 text-xs text-slate-400">Max</span>
+                    <input
+                      type="number"
                       value={priceRange.max}
-                      onChange={(e) => setPriceRange({...priceRange, max: Number(e.target.value)})}
+                      onChange={(e) => setPriceRange({ ...priceRange, max: Number(e.target.value) })}
                       className="w-full border dark:border-slate-600 rounded px-3 pt-5 pb-1 text-sm bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-sky-500 outline-none"
                     />
                   </div>
@@ -139,9 +139,9 @@ const ProductCatalog: React.FC = () => {
               {/* Availability */}
               <div>
                 <h4 className="font-bold text-slate-800 dark:text-white mb-3 text-sm uppercase tracking-wide">Ketersediaan</h4>
-                <div 
-                   onClick={() => setOnlyAvailable(!onlyAvailable)}
-                   className="flex items-center justify-between bg-slate-50 dark:bg-slate-700 p-3 rounded-lg cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition border border-slate-200 dark:border-slate-600"
+                <div
+                  onClick={() => setOnlyAvailable(!onlyAvailable)}
+                  className="flex items-center justify-between bg-slate-50 dark:bg-slate-700 p-3 rounded-lg cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition border border-slate-200 dark:border-slate-600"
                 >
                   <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Stok Tersedia Saja</span>
                   <div className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 relative ${onlyAvailable ? 'bg-sky-500' : 'bg-slate-300 dark:bg-slate-500'}`}>
@@ -158,7 +158,7 @@ const ProductCatalog: React.FC = () => {
           {filteredProducts.map(product => {
             const displayPrice = getPrice(product);
             const isReseller = user?.role === 'reseller';
-            const isOutOfStock = product.stock <= 0;
+            const isOutOfStock = product.totalStock <= 0;
 
             return (
               <div key={product.id} className="bg-white dark:bg-slate-800 rounded-xl shadow-sm hover:shadow-md transition overflow-hidden flex flex-col h-full border border-slate-100 dark:border-slate-700 group">
@@ -170,21 +170,21 @@ const ProductCatalog: React.FC = () => {
                     </div>
                   )}
                   {isOutOfStock && (
-                     <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-10">
-                        <span className="bg-red-600 text-white px-3 py-1 rounded font-bold text-sm transform -rotate-12 border-2 border-white">STOK HABIS</span>
-                     </div>
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-10">
+                      <span className="bg-red-600 text-white px-3 py-1 rounded font-bold text-sm transform -rotate-12 border-2 border-white">STOK HABIS</span>
+                    </div>
                   )}
                 </Link>
                 <div className="p-4 flex-1 flex flex-col">
                   <div className="flex justify-between items-start">
                     <span className="text-xs text-sky-600 dark:text-sky-400 font-medium bg-sky-50 dark:bg-slate-700 px-2 py-1 rounded-md">{product.category}</span>
-                    <span className="text-xs text-slate-400">{product.weight}gr</span>
+                    <span className="text-xs text-slate-400">{product.variants[0]?.weight || 0}gr</span>
                   </div>
                   <Link to={`/product/${product.id}`} className="block">
                     <h3 className="font-bold text-slate-900 dark:text-white mt-2 mb-1 leading-snug hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{product.name}</h3>
                   </Link>
                   <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mb-4 flex-1">{product.description}</p>
-                  
+
                   <div className="mt-auto">
                     <div className="flex items-baseline gap-2 mb-3">
                       <span className="text-lg font-bold text-slate-900 dark:text-white">
@@ -192,15 +192,15 @@ const ProductCatalog: React.FC = () => {
                       </span>
                       {isReseller && (
                         <span className="text-sm text-slate-400 line-through">
-                           Rp {product.price.toLocaleString('id-ID')}
+                          Rp {product.basePrice.toLocaleString('id-ID')}
                         </span>
                       )}
                     </div>
-                    
-                    <button 
+
+                    <button
                       onClick={(e) => {
                         e.preventDefault();
-                        if(!isOutOfStock) addToCart(product);
+                        if (!isOutOfStock) addToCart(product);
                       }}
                       disabled={isOutOfStock}
                       className={`w-full font-medium py-2 rounded-lg transition flex items-center justify-center gap-2 active:scale-95 ${isOutOfStock ? 'bg-slate-200 dark:bg-slate-700 text-slate-400 cursor-not-allowed' : 'bg-sky-600 hover:bg-sky-700 text-white'}`}
@@ -217,11 +217,11 @@ const ProductCatalog: React.FC = () => {
         {filteredProducts.length === 0 && (
           <div className="text-center py-20 bg-white dark:bg-slate-800 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 transition-colors">
             <div className="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
-               <Filter className="text-slate-400" />
+              <Filter className="text-slate-400" />
             </div>
             <h3 className="text-lg font-bold text-slate-700 dark:text-slate-200">Tidak ada produk ditemukan</h3>
             <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Coba ganti kata kunci pencarian atau atur ulang filter.</p>
-            <button 
+            <button
               onClick={() => {
                 setSearchTerm("");
                 setSelectedCategory("Semua");

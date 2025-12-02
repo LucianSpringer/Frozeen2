@@ -1,24 +1,41 @@
 export type UserRole = 'admin' | 'reseller' | 'customer';
 export type OrderStatus = 'pending' | 'paid' | 'packing' | 'shipping' | 'completed' | 'cancelled';
 export type ResellerTier = 'STARTER' | 'SILVER' | 'GOLD' | 'PLATINUM';
+export type MemberStatus = 'REGULAR' | 'PRIORITY'; // New for Customers
 
-// 1. Expanded User Profile
+// New Address Interface
+export interface Address {
+  id: string;
+  label: string; // e.g., "Rumah", "Kantor"
+  recipientName: string;
+  phone: string;
+  fullAddress: string;
+  city: string;
+  isPrimary: boolean;
+}
+
 export interface User {
   id: string;
   name: string;
   email: string;
   role: UserRole;
   phone: string;
-  joinDate: string; // ISO Date
+  joinDate: string;
   avatar?: string;
 
   // Reseller Specifics
   referralCode?: string;
-  uplineId?: string; // Who recruited them?
+  uplineId?: string;
   tier?: ResellerTier;
   walletBalance?: number;
   totalSpend?: number;
-  points?: number; // Loyalty System
+
+  // Customer & Loyalty
+  points?: number;
+  memberStatus?: MemberStatus; // "Priority" if spend > 10jt
+  wishlist?: string[]; // Array of Product IDs
+  addresses?: Address[]; // Multi-address support
+
   bankDetails?: {
     bankName: string;
     accountNumber: string;
@@ -26,10 +43,10 @@ export interface User {
   };
 }
 
-// 2. Product Variants & Batching
+// ... (Rest of the file: Product, Order, etc. remains the same)
 export interface ProductVariant {
   id: string;
-  name: string; // e.g., "Pedas 500gr"
+  name: string;
   price: number;
   stock: number;
   weight: number;
@@ -40,32 +57,25 @@ export interface Product {
   name: string;
   category: string;
   description: string;
-  basePrice: number; // Harga Ecer Base
-  resellerPrice: number; // Keep for backward compatibility or calculate dynamically
+  basePrice: number;
+  resellerPrice: number;
   image: string;
-
-  // Advanced Inventory
-  variants?: ProductVariant[]; // Optional for simple products
-  stock: number; // Simple stock
-  totalStock?: number; // Calculated from variants if present
+  variants?: ProductVariant[];
+  stock: number;
+  totalStock?: number;
   weight: number;
   minOrder: number;
   isActive: boolean;
-
-  // Badges & Ops
   isBestSeller?: boolean;
   isPromo?: boolean;
   batchId?: string;
   expiryDate?: string;
-
-  // Metrics
   soldCount?: number;
 }
 
-// 3. Order Management "Super Lengkap"
 export interface CartItem extends Product {
   quantity: number;
-  selectedVariant?: ProductVariant; // If variant selected
+  selectedVariant?: ProductVariant;
 }
 
 export interface OrderItem {
@@ -81,33 +91,25 @@ export interface OrderItem {
 export interface Order {
   id: string;
   userId: string;
-  user_name: string; // Denormalized for easier display
-  items: CartItem[]; // Reusing CartItem for simplicity in migration
-
-  // Financials
+  user_name: string;
+  items: CartItem[];
   totalAmount: number;
   shippingCost?: number;
-  grandTotal?: number; // totalAmount + shipping
-
-  // Status & Logistics
+  grandTotal?: number;
   status: OrderStatus;
   date: string;
   paymentMethod: string;
-  paymentProofUrl?: string; // Image URL
-
+  paymentProofUrl?: string;
   shippingAddress: string;
   courier?: string;
   resi?: string;
-
-  // Dropship
   isDropship?: boolean;
   dropshipSenderName?: string;
-
-  // Activity Log
+  dropshipSenderPhone?: string;
   history?: {
     status: OrderStatus;
     timestamp: string;
-    updatedBy: string; // "System" or "Admin"
+    updatedBy: string;
   }[];
 }
 
@@ -115,8 +117,8 @@ export interface Order {
 export interface ActivityLog {
   id: string;
   adminId: string;
-  action: string; // "UPDATE_PRICE", "APPROVE_RESELLER"
-  targetId: string; // ProductID or UserID
+  action: string;
+  targetId: string;
   timestamp: string;
   details: string;
 }
@@ -125,7 +127,7 @@ export interface ActivityLog {
 export interface CommissionTransaction {
   id: string;
   resellerId: string;
-  orderId: string; // Source of commission
+  orderId: string;
   amount: number;
   type: 'SALES_BONUS' | 'REFERRAL_BONUS';
   status: 'PENDING' | 'PAID';

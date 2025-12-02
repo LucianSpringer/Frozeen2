@@ -67,9 +67,8 @@ const OrderManager: React.FC = () => {
         };
         const next = flow[order.status];
         if (next !== order.status) {
-            // In a real app, this would call the API
-            // updateOrderStatus(order.id, next); 
-            alert(`Simulated: Order ${order.id} moved to ${next}`);
+            // --- FIX: Actually Call Context ---
+            updateOrderStatus(order.id, next);
         }
     };
 

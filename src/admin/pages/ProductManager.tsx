@@ -8,7 +8,7 @@ import { MOCK_PRODUCTS } from '../../../mockData';
 import { Product, CATEGORIES } from '../../../types';
 
 const ProductManager: React.FC = () => {
-    const { deleteProduct } = useStore(); // In real app, would allow add/edit
+    const { deleteProduct, addProduct } = useStore(); // In real app, would allow add/edit
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('Semua');
     const [showAddModal, setShowAddModal] = useState(false);
@@ -160,7 +160,26 @@ const ProductManager: React.FC = () => {
                         </div>
                         <div className="p-6 bg-slate-50 dark:bg-slate-800/50 flex justify-end gap-3">
                             <button onClick={() => setShowAddModal(false)} className="px-4 py-2 text-sm font-medium text-slate-600">Batal</button>
-                            <button onClick={() => { setShowAddModal(false); alert('Simulasi: Produk ditambahkan!'); }} className="px-4 py-2 text-sm font-bold bg-sky-600 text-white rounded-lg hover:bg-sky-700">Simpan</button>
+                            <button onClick={() => {
+                                // Create a basic mock product object
+                                const mockNewProduct: Product = {
+                                    id: `P-${Date.now()}`,
+                                    name: "New Product (Draft)",
+                                    category: "Nugget & Tempura",
+                                    description: "New item",
+                                    basePrice: 50000,
+                                    resellerPrice: 40000,
+                                    image: "https://placehold.co/400",
+                                    stock: 100,
+                                    weight: 500,
+                                    minOrder: 1,
+                                    isActive: true,
+                                    variants: []
+                                };
+                                addProduct(mockNewProduct);
+                                setShowAddModal(false);
+                                alert('Produk berhasil ditambahkan ke database!');
+                            }} className="px-4 py-2 text-sm font-bold bg-sky-600 text-white rounded-lg hover:bg-sky-700">Simpan</button>
                         </div>
                     </div>
                 </div>

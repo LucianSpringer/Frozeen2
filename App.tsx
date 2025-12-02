@@ -19,6 +19,22 @@ import ProductManager from './src/admin/pages/ProductManager';
 import ResellerManager from './src/admin/pages/ResellerManager';
 import FinanceManager from './src/admin/pages/FinanceManager';
 
+// --- RESELLER MODULES ---
+import ResellerLayout from './src/reseller/ResellerLayout';
+import ResellerDashboard from './src/reseller/pages/ResellerDashboard';
+import MyOrders from './src/reseller/pages/MyOrders';
+import MyNetwork from './src/reseller/pages/MyNetwork';
+import MyIncome from './src/reseller/pages/MyIncome';
+import MarketingTools from './src/reseller/pages/MarketingTools';
+
+// --- MEMBER MODULES ---
+import MemberLayout from './src/member/MemberLayout';
+import MemberDashboard from './src/member/pages/MemberDashboard';
+import MemberOrders from './src/member/pages/MemberOrders';
+import MemberProfile from './src/member/pages/MemberProfile';
+import MemberWishlist from './src/member/pages/MemberWishlist';
+import UpgradeReseller from './src/member/pages/UpgradeReseller';
+
 // Placeholder for missing modules to prevent crash
 const PlaceholderPage = ({ title }: { title: string }) => (
   <div className="flex items-center justify-center h-96 text-slate-400">
@@ -38,8 +54,8 @@ const ToastContainer = () => {
         <div
           key={notif.id}
           className={`min-w-[300px] p-4 rounded-lg shadow-lg flex items-start justify-between animate-slide-in-right ${notif.type === 'success' ? 'bg-green-500 text-white' :
-              notif.type === 'error' ? 'bg-red-500 text-white' :
-                'bg-sky-500 text-white'
+            notif.type === 'error' ? 'bg-red-500 text-white' :
+              'bg-sky-500 text-white'
             }`}
         >
           <div>
@@ -127,6 +143,26 @@ const App = () => {
             <Route path="finance" element={<FinanceManager />} />
             <Route path="broadcast" element={<PlaceholderPage title="Broadcast WhatsApp" />} />
             <Route path="settings" element={<PlaceholderPage title="Pengaturan Website" />} />
+          </Route>
+
+          {/* RESELLER ROUTES (Protected by ResellerLayout Logic) */}
+          <Route path="/reseller" element={<ResellerLayout />}>
+            <Route index element={<ResellerDashboard />} />
+            <Route path="orders" element={<PlaceholderPage title="Riwayat Pesanan" />} />
+            <Route path="income" element={<PlaceholderPage title="Komisi & Saldo" />} />
+            <Route path="network" element={<PlaceholderPage title="Downline Saya" />} />
+            <Route path="marketing" element={<MarketingTools />} />
+            <Route path="academy" element={<PlaceholderPage title="Akademi Juragan" />} />
+          </Route>
+
+          {/* MEMBER ROUTES (Protected by MemberLayout Logic) */}
+          <Route path="/member" element={<MemberLayout />}>
+            <Route index element={<MemberDashboard />} />
+            <Route path="orders" element={<MemberOrders />} />
+            <Route path="wishlist" element={<MemberWishlist />} />
+            <Route path="address" element={<MemberProfile />} />
+            <Route path="profile" element={<MemberProfile />} />
+            <Route path="upgrade" element={<UpgradeReseller />} />
           </Route>
         </Routes>
       </HashRouter>

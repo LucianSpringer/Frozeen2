@@ -191,7 +191,11 @@ export const StoreProvider = ({ children }: { children?: React.ReactNode }) => {
 
   const clearCart = () => setCart([]);
 
-  const placeOrder = (shippingAddress: string, paymentMethod: string, dropshipOptions?: { isDropship: boolean; dropshipSenderName?: string; dropshipSenderPhone?: string }) => {
+  const placeOrder = (
+    shippingAddress: string,
+    paymentMethod: string,
+    dropshipOptions?: { isDropship: boolean; dropshipSenderName?: string; dropshipSenderPhone?: string }
+  ) => {
     if (!user) return;
 
     const totalAmount = cart.reduce((sum, item) => {
@@ -205,22 +209,24 @@ export const StoreProvider = ({ children }: { children?: React.ReactNode }) => {
       user_name: user.name,
       items: [...cart],
       totalAmount,
-      shippingCost: 15000, // Mock shipping cost
+      shippingCost: 15000,
       grandTotal: totalAmount + 15000,
       status: 'pending',
       date: new Date().toISOString(),
       shippingAddress,
       paymentMethod,
-      courier: 'JNE', // Default
+      courier: 'JNE',
+      // --- FIX START: Actually save Dropship Data ---
+      isDropship: dropshipOptions?.isDropship || false,
+      dropshipSenderName: dropshipOptions?.dropshipSenderName,
+      dropshipSenderPhone: dropshipOptions?.dropshipSenderPhone,
+      // --- FIX END ---
       history: [{ status: 'pending', timestamp: new Date().toISOString(), updatedBy: 'System' }]
     };
 
     setOrders(prev => [newOrder, ...prev]);
-    setNewOrderIds(prev => [newOrder.id, ...prev]); // Add to highlight list
-
-    // Trigger Admin Notification (Simulated)
+    setNewOrderIds(prev => [newOrder.id, ...prev]);
     addNotification('info', 'Notifikasi Admin', `Pesanan Baru #${newOrder.id} masuk!`);
-
     clearCart();
   };
 

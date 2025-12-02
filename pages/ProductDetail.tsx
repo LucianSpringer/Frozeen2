@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import { ShoppingCart, ArrowLeft, Tag, Truck, ShieldCheck, Minus, Plus } from 'lucide-react';
+import { ResellerEngine } from '../src/core/ResellerTierEngine';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -25,7 +26,8 @@ const ProductDetail: React.FC = () => {
   }
 
   const isReseller = user?.role === 'reseller';
-  const price = isReseller ? product.resellerPrice : product.price;
+  const price = ResellerEngine.calculateProductPrice(product, user);
+  const tierMetrics = user ? ResellerEngine.getTierMetrics(user) : null;
   const isOutOfStock = product.stock <= 0;
 
   const handleAddToCart = () => {
@@ -57,11 +59,11 @@ const ProductDetail: React.FC = () => {
                   <Tag size={16} /> Harga Khusus Reseller
                 </div>
               )}
-               {isOutOfStock && (
+              {isOutOfStock && (
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                    <span className="bg-red-600 text-white px-6 py-3 rounded-xl text-xl font-bold transform -rotate-12 border-4 border-white">STOK HABIS</span>
+                  <span className="bg-red-600 text-white px-6 py-3 rounded-xl text-xl font-bold transform -rotate-12 border-4 border-white">STOK HABIS</span>
                 </div>
-               )}
+              )}
             </div>
 
             {/* Info Section */}
@@ -73,22 +75,27 @@ const ProductDetail: React.FC = () => {
                   </span>
                   <span className="text-slate-500 dark:text-slate-400 font-medium">{product.weight} gram</span>
                 </div>
-                
+
                 <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-4 leading-tight">{product.name}</h1>
-                
+
                 <div className="flex items-baseline gap-3 mb-6">
                   <span className="text-3xl font-bold text-sky-600 dark:text-sky-400">Rp {price.toLocaleString('id-ID')}</span>
                   {isReseller && (
                     <span className="text-lg text-slate-400 line-through">Rp {product.price.toLocaleString('id-ID')}</span>
                   )}
                   <span className="text-sm text-slate-500 dark:text-slate-400 ml-2">/ pack</span>
+                  {isReseller && tierMetrics && (
+                    <span className="ml-3 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded text-xs font-bold border border-indigo-200 dark:border-indigo-700">
+                      {tierMetrics.level} TIER
+                    </span>
+                  )}
                 </div>
 
                 <div className="prose prose-slate dark:prose-invert max-w-none text-slate-600 dark:text-slate-300 mb-8">
                   <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2">Deskripsi Produk</h3>
                   <p>{product.description}</p>
                   <p className="mt-4">
-                    Cocok untuk persediaan lauk harian keluarga atau jualan matang. 
+                    Cocok untuk persediaan lauk harian keluarga atau jualan matang.
                     Diproses secara higienis dan dibekukan sempurna untuk menjaga kesegaran rasa.
                   </p>
                 </div>
@@ -98,7 +105,7 @@ const ProductDetail: React.FC = () => {
                     <Truck size={18} className="text-sky-500" />
                     <span>Pengiriman Instan/Sameday</span>
                   </div>
-                   <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2">
                     <ShieldCheck size={18} className="text-green-500" />
                     <span>Jaminan Halal & Fresh</span>
                   </div>
@@ -108,28 +115,28 @@ const ProductDetail: React.FC = () => {
               {/* Action Section */}
               <div className="border-t border-slate-100 dark:border-slate-700 pt-6">
                 <div className="flex items-center justify-between mb-4">
-                   <span className="font-bold text-slate-700 dark:text-slate-200">Jumlah Order</span>
-                   <span className={`text-sm font-medium ${product.stock < 10 ? 'text-orange-500' : 'text-green-600 dark:text-green-400'}`}>
-                     Stok Tersedia: {product.stock}
-                   </span>
+                  <span className="font-bold text-slate-700 dark:text-slate-200">Jumlah Order</span>
+                  <span className={`text-sm font-medium ${product.stock < 10 ? 'text-orange-500' : 'text-green-600 dark:text-green-400'}`}>
+                    Stok Tersedia: {product.stock}
+                  </span>
                 </div>
 
                 <div className="flex gap-4">
                   <div className="flex items-center border-2 border-slate-200 dark:border-slate-600 rounded-xl px-2">
-                    <button 
+                    <button
                       onClick={decrementQty}
                       disabled={isOutOfStock || qty <= 1}
                       className="p-3 text-slate-500 dark:text-slate-400 hover:text-sky-600 dark:hover:text-sky-400 disabled:opacity-30"
                     >
                       <Minus size={20} />
                     </button>
-                    <input 
-                      type="number" 
-                      value={qty} 
-                      readOnly 
+                    <input
+                      type="number"
+                      value={qty}
+                      readOnly
                       className="w-12 text-center font-bold text-lg text-slate-800 dark:text-white bg-transparent focus:outline-none"
                     />
-                    <button 
+                    <button
                       onClick={incrementQty}
                       disabled={isOutOfStock || qty >= product.stock}
                       className="p-3 text-slate-500 dark:text-slate-400 hover:text-sky-600 dark:hover:text-sky-400 disabled:opacity-30"
@@ -137,15 +144,14 @@ const ProductDetail: React.FC = () => {
                       <Plus size={20} />
                     </button>
                   </div>
-                  
-                  <button 
+
+                  <button
                     onClick={handleAddToCart}
                     disabled={isOutOfStock}
-                    className={`flex-1 font-bold text-lg py-3 rounded-xl transition flex items-center justify-center gap-2 shadow-lg ${
-                      isOutOfStock 
-                      ? 'bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed' 
+                    className={`flex-1 font-bold text-lg py-3 rounded-xl transition flex items-center justify-center gap-2 shadow-lg ${isOutOfStock
+                      ? 'bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed'
                       : 'bg-orange-500 hover:bg-orange-600 text-white shadow-orange-200 dark:shadow-none hover:scale-[1.02]'
-                    }`}
+                      }`}
                   >
                     <ShoppingCart size={24} /> {isOutOfStock ? 'Stok Habis' : 'Tambah Keranjang'}
                   </button>

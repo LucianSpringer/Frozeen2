@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Product, CartItem, Order, UserRole } from '../types';
 import { MOCK_PRODUCTS, MOCK_USERS } from '../mockData';
+import { ResellerEngine } from '../src/core/ResellerTierEngine';
 
 interface Notification {
   id: string;
@@ -90,23 +91,23 @@ export const StoreProvider = ({ children }: { children?: React.ReactNode }) => {
 
   const login = (email: string, role: UserRole): boolean => {
     const foundUser = MOCK_USERS.find(u => u.email === email && u.role === role);
-    
+
     if (foundUser) {
-        setUser(foundUser);
-        localStorage.setItem('frozeen_user', JSON.stringify(foundUser));
-        addNotification('success', 'Login Berhasil', `Selamat datang kembali, ${foundUser.name}`);
-        return true;
+      setUser(foundUser);
+      localStorage.setItem('frozeen_user', JSON.stringify(foundUser));
+      addNotification('success', 'Login Berhasil', `Selamat datang kembali, ${foundUser.name}`);
+      return true;
     }
 
     const sessionUserStr = localStorage.getItem('frozeen_user_session');
     if (sessionUserStr) {
-        const sessionUser = JSON.parse(sessionUserStr);
-        if (sessionUser.email === email) { // In real app, check password/role too
-             setUser(sessionUser);
-             localStorage.setItem('frozeen_user', JSON.stringify(sessionUser));
-             addNotification('success', 'Login Berhasil', `Selamat datang kembali, ${sessionUser.name}`);
-             return true;
-        }
+      const sessionUser = JSON.parse(sessionUserStr);
+      if (sessionUser.email === email) { // In real app, check password/role too
+        setUser(sessionUser);
+        localStorage.setItem('frozeen_user', JSON.stringify(sessionUser));
+        addNotification('success', 'Login Berhasil', `Selamat datang kembali, ${sessionUser.name}`);
+        return true;
+      }
     }
 
     addNotification('error', 'Login Gagal', 'Email tidak ditemukan atau role salah.');
@@ -125,14 +126,14 @@ export const StoreProvider = ({ children }: { children?: React.ReactNode }) => {
     const existsInMock = MOCK_USERS.some(u => u.email === email);
     const sessionUserStr = localStorage.getItem('frozeen_user_session');
     let existsInSession = false;
-    
+
     if (sessionUserStr) {
       const sUser = JSON.parse(sessionUserStr);
       if (sUser.email === email) existsInSession = true;
     }
 
     if (existsInMock || existsInSession) {
-        return { success: false, message: 'Email sudah terdaftar. Silakan login.' };
+      return { success: false, message: 'Email sudah terdaftar. Silakan login.' };
     }
 
     const newUser: User = {
@@ -143,11 +144,11 @@ export const StoreProvider = ({ children }: { children?: React.ReactNode }) => {
       walletBalance: role === 'reseller' ? 0 : undefined,
       referralCode: role === 'reseller' ? `REF${Math.floor(Math.random() * 1000)}` : undefined
     };
-    
+
     setUser(newUser);
     localStorage.setItem('frozeen_user', JSON.stringify(newUser));
     localStorage.setItem('frozeen_user_session', JSON.stringify(newUser)); // Simulating DB storage for this session
-    
+
     addNotification('success', 'Registrasi Berhasil', 'Akun Anda telah dibuat.');
     return { success: true, message: 'Success' };
   };
@@ -182,9 +183,9 @@ export const StoreProvider = ({ children }: { children?: React.ReactNode }) => {
 
   const placeOrder = (shippingAddress: string, paymentMethod: string) => {
     if (!user) return;
-    
+
     const totalAmount = cart.reduce((sum, item) => {
-      const price = user.role === 'reseller' ? item.resellerPrice : item.price;
+      const price = ResellerEngine.calculateProductPrice(item, user);
       return sum + (price * item.quantity);
     }, 0);
 
@@ -201,10 +202,10 @@ export const StoreProvider = ({ children }: { children?: React.ReactNode }) => {
 
     setOrders(prev => [newOrder, ...prev]);
     setNewOrderIds(prev => [newOrder.id, ...prev]); // Add to highlight list
-    
+
     // Trigger Admin Notification (Simulated)
     addNotification('info', 'Notifikasi Admin', `Pesanan Baru #${newOrder.id} masuk!`);
-    
+
     clearCart();
   };
 

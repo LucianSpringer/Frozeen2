@@ -9,6 +9,7 @@ import ProductDetail from './pages/ProductDetail';
 import Dashboard from './pages/Dashboard';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
+import ResellerHub from './pages/ResellerHub';
 import { LoginPage, RegisterPage } from './pages/AuthPages';
 import { X, MessageCircle, Send } from 'lucide-react';
 
@@ -19,13 +20,12 @@ const ToastContainer = () => {
   return (
     <div className="fixed top-24 right-4 z-50 flex flex-col gap-2">
       {notifications.map((notif) => (
-        <div 
-          key={notif.id} 
-          className={`min-w-[300px] p-4 rounded-lg shadow-lg flex items-start justify-between animate-slide-in-right ${
-            notif.type === 'success' ? 'bg-green-500 text-white' : 
-            notif.type === 'error' ? 'bg-red-500 text-white' : 
-            'bg-sky-500 text-white'
-          }`}
+        <div
+          key={notif.id}
+          className={`min-w-[300px] p-4 rounded-lg shadow-lg flex items-start justify-between animate-slide-in-right ${notif.type === 'success' ? 'bg-green-500 text-white' :
+            notif.type === 'error' ? 'bg-red-500 text-white' :
+              'bg-sky-500 text-white'
+            }`}
         >
           <div>
             <h4 className="font-bold text-sm">{notif.title}</h4>
@@ -66,20 +66,20 @@ const WhatsAppWidget = () => {
           </div>
           <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Isi data singkat untuk terhubung langsung dengan CS kami.</p>
           <form onSubmit={handleSubmit} className="space-y-3">
-            <input 
-              required placeholder="Nama Anda" 
+            <input
+              required placeholder="Nama Anda"
               className="w-full text-sm border dark:border-slate-600 rounded-lg p-2.5 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500 outline-none"
-              value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
+              value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })}
             />
-            <input 
+            <input
               required placeholder="No. WhatsApp" type="tel"
               className="w-full text-sm border dark:border-slate-600 rounded-lg p-2.5 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500 outline-none"
-              value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})}
+              value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })}
             />
-            <input 
-              required placeholder="Kota Domisili" 
+            <input
+              required placeholder="Kota Domisili"
               className="w-full text-sm border dark:border-slate-600 rounded-lg p-2.5 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500 outline-none"
-              value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})}
+              value={formData.city} onChange={e => setFormData({ ...formData, city: e.target.value })}
             />
             <button type="submit" className="w-full bg-green-500 text-white font-bold py-2.5 rounded-lg hover:bg-green-600 transition flex items-center justify-center gap-2">
               Kirim ke WhatsApp <Send size={16} />
@@ -87,8 +87,8 @@ const WhatsAppWidget = () => {
           </form>
         </div>
       )}
-      
-      <button 
+
+      <button
         onClick={() => setIsOpen(!isOpen)}
         className={`${isOpen ? 'bg-slate-700 dark:bg-slate-600 rotate-90' : 'bg-green-500 hover:scale-110 rotate-0'} text-white p-4 rounded-full shadow-lg shadow-green-500/30 transition-all duration-300 flex items-center justify-center`}
       >
@@ -127,6 +127,7 @@ const App = () => {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/reseller-hub" element={<ResellerHub />} />
           </Routes>
         </Layout>
       </HashRouter>

@@ -26,7 +26,7 @@ interface StoreContextType {
   removeFromCart: (productId: string) => void;
   updateCartQuantity: (productId: string, delta: number) => void;
   clearCart: () => void;
-  placeOrder: (shippingAddress: string, paymentMethod: string) => void;
+  placeOrder: (shippingAddress: string, paymentMethod: string, dropshipOptions?: { isDropship: boolean; dropshipSenderName?: string; dropshipSenderPhone?: string }) => void;
   updateOrderStatus: (orderId: string, status: Order['status']) => void;
   addProduct: (product: Product) => void;
   deleteProduct: (id: string) => void;
@@ -142,7 +142,10 @@ export const StoreProvider = ({ children }: { children?: React.ReactNode }) => {
       email,
       role,
       walletBalance: role === 'reseller' ? 0 : undefined,
-      referralCode: role === 'reseller' ? `REF${Math.floor(Math.random() * 1000)}` : undefined
+      referralCode: role === 'reseller' ? `REF${Math.floor(Math.random() * 1000)}` : undefined,
+      points: 0,
+      referralCount: 0,
+      tierLevel: 'STARTER'
     };
 
     setUser(newUser);
@@ -181,7 +184,7 @@ export const StoreProvider = ({ children }: { children?: React.ReactNode }) => {
 
   const clearCart = () => setCart([]);
 
-  const placeOrder = (shippingAddress: string, paymentMethod: string) => {
+  const placeOrder = (shippingAddress: string, paymentMethod: string, dropshipOptions?: { isDropship: boolean; dropshipSenderName?: string; dropshipSenderPhone?: string }) => {
     if (!user) return;
 
     const totalAmount = cart.reduce((sum, item) => {
@@ -197,7 +200,10 @@ export const StoreProvider = ({ children }: { children?: React.ReactNode }) => {
       status: 'pending',
       date: new Date().toISOString(),
       shippingAddress,
-      paymentMethod
+      paymentMethod,
+      isDropship: dropshipOptions?.isDropship || false,
+      dropshipSenderName: dropshipOptions?.dropshipSenderName,
+      dropshipSenderPhone: dropshipOptions?.dropshipSenderPhone
     };
 
     setOrders(prev => [newOrder, ...prev]);

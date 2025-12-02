@@ -1,13 +1,13 @@
-
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { 
-  ArrowRight, CheckCircle, TrendingUp, Clock, Package, Star, 
-  MapPin, Play, Eye, X, ChevronDown, ChevronUp, ShieldCheck, 
-  Award, Globe, Users, ShoppingCart 
+import {
+  ArrowRight, CheckCircle, TrendingUp, Clock, Package, Star,
+  MapPin, Play, Eye, X, ChevronDown, ChevronUp, ShieldCheck,
+  Award, Globe, Users, ShoppingCart
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { Product } from '../types';
+import { HowItWorksSection, SuccessStoriesSection, InstagramFeedSection, EXTRA_FAQ } from './LandingPage_Expansion';
 
 // --- Helper Components ---
 
@@ -22,19 +22,19 @@ const ProductQuickView = ({ product, onClose }: { product: Product; onClose: () 
           <X size={24} />
         </button>
         <div className="md:w-1/2 bg-gray-100 dark:bg-slate-700 h-64 md:h-auto relative">
-           <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
-           <div className="absolute top-4 left-4 bg-orange-500 text-white px-3 py-1 rounded-lg font-bold text-sm">Best Seller</div>
+          <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+          <div className="absolute top-4 left-4 bg-orange-500 text-white px-3 py-1 rounded-lg font-bold text-sm">Best Seller</div>
         </div>
         <div className="md:w-1/2 p-8 flex flex-col">
           <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{product.name}</h3>
           <div className="flex items-center gap-2 mb-4">
-             <div className="flex text-yellow-400">
-               {[1,2,3,4,5].map(i => <Star key={i} size={16} fill="currentColor" />)}
-             </div>
-             <span className="text-sm text-slate-500 dark:text-slate-400">(120+ Ulasan)</span>
+            <div className="flex text-yellow-400">
+              {[1, 2, 3, 4, 5].map(i => <Star key={i} size={16} fill="currentColor" />)}
+            </div>
+            <span className="text-sm text-slate-500 dark:text-slate-400">(120+ Ulasan)</span>
           </div>
           <p className="text-slate-600 dark:text-slate-300 mb-6 flex-1">{product.description}</p>
-          
+
           <div className="bg-sky-50 dark:bg-slate-700 p-4 rounded-xl mb-6">
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm text-slate-600 dark:text-slate-300">Harga Eceran:</span>
@@ -48,13 +48,13 @@ const ProductQuickView = ({ product, onClose }: { product: Product; onClose: () 
           </div>
 
           <div className="flex gap-4">
-            <button 
-              onClick={() => { addToCart(product); onClose(); }} 
+            <button
+              onClick={() => { addToCart(product); onClose(); }}
               className="flex-1 bg-sky-600 text-white py-3 rounded-xl font-bold hover:bg-sky-700 transition flex items-center justify-center gap-2"
             >
               <ShoppingCart size={20} /> Beli Sekarang
             </button>
-            <button 
+            <button
               onClick={() => navigate('/register')}
               className="flex-1 border-2 border-orange-500 text-orange-500 dark:text-orange-400 py-3 rounded-xl font-bold hover:bg-orange-50 dark:hover:bg-slate-700 transition"
             >
@@ -67,12 +67,12 @@ const ProductQuickView = ({ product, onClose }: { product: Product; onClose: () 
   );
 };
 
-const FaqItem = ({ q, a }: { q: string, a: string }) => {
+const FaqItem: React.FC<{ q: string; a: string }> = ({ q, a }) => {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <div className="border-b border-slate-200 dark:border-slate-700">
-      <button 
-        onClick={() => setIsOpen(!isOpen)} 
+      <button
+        onClick={() => setIsOpen(!isOpen)}
         className="w-full py-4 text-left flex justify-between items-center hover:text-sky-600 dark:hover:text-sky-400 transition"
       >
         <span className="font-bold text-slate-800 dark:text-slate-100 text-lg">{q}</span>
@@ -106,8 +106,8 @@ const PackageCard = ({ title, price, benefits, isPopular }: { title: string, pri
           </li>
         ))}
       </ul>
-      <Link 
-        to="/register" 
+      <Link
+        to="/register"
         className={`block w-full text-center py-4 rounded-xl font-bold transition ${isPopular ? 'bg-orange-500 text-white hover:bg-orange-600 shadow-lg shadow-orange-200 dark:shadow-none' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600'}`}
       >
         Pilih Paket
@@ -130,38 +130,57 @@ const LandingPage: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen font-sans">
-      
-      {/* 1. Mega Hero Section */}
+
+      {/* 1. Mega Hero Section (Video Engine Enabled) */}
       <section className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="https://images.unsplash.com/photo-1550989460-0adf9ea622e2?q=80&w=2000&auto=format&fit=crop" 
-            alt="Frozen Food Background" 
-            className="w-full h-full object-cover"
+        {/* VIDEO BACKGROUND LAYER */}
+        <div className="absolute inset-0 z-0 bg-slate-900">
+          {/* 1. Static Fallback (Loads instantly) */}
+          <img
+            src="https://images.unsplash.com/photo-1550989460-0adf9ea622e2?q=80&w=2000&auto=format&fit=crop"
+            alt="Frozen Food Background"
+            className="absolute inset-0 w-full h-full object-cover opacity-50"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/70 to-slate-900/30"></div>
-          <div className="absolute inset-0 bg-[url('https://raw.githubusercontent.com/SochavaAG/example-my-code/master/pens/animation-smoke/smoke.png')] bg-cover opacity-20 animate-pulse"></div>
+
+          {/* 2. Video Engine (Fades in when ready) */}
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay"
+            onLoadedData={(e) => e.currentTarget.classList.remove('opacity-0')}
+          >
+            {/* NOTE: Replace this URL with your local file '/hero_freezer.mp4' for max speed */}
+            <source src="https://cdn.coverr.co/videos/coverr-opening-a-refrigerator-2663/1080p.mp4" type="video/mp4" />
+          </video>
+
+          {/* 3. Cinema Gradients (The "Vibe" Layer) */}
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/95 via-slate-900/80 to-slate-900/40"></div>
+
+          {/* 4. Atmospheric Smoke Animation */}
+          <div className="absolute inset-0 bg-[url('https://raw.githubusercontent.com/SochavaAG/example-my-code/master/pens/animation-smoke/smoke.png')] bg-cover opacity-30 animate-pulse mix-blend-screen"></div>
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center md:text-left mt-16">
           <div className="md:w-2/3 lg:w-1/2">
-            <div className="inline-block bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-orange-300 text-sm font-bold mb-6 animate-fade-in-down">
+            <div className="inline-block bg-orange-500/20 backdrop-blur-md border border-orange-500/50 rounded-full px-4 py-1.5 text-orange-300 text-sm font-bold mb-6 animate-fade-in-down shadow-[0_0_15px_rgba(249,115,22,0.5)]">
               🔥 Peluang Bisnis Viral 2025
             </div>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white leading-tight mb-6 drop-shadow-xl">
-              Jualan Frozen Food <br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-cyan-300">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white leading-tight mb-6 drop-shadow-2xl">
+              Jualan Frozen Food <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-cyan-300 to-teal-200 animate-gradient-x">
                 Omset Jutaan
-              </span> <br/>
+              </span> <br />
               Tanpa Ribet!
             </h1>
             <p className="text-lg md:text-xl text-slate-200 mb-8 max-w-xl leading-relaxed">
               Ubah freezer nganggur jadi mesin uang. Gabung 5000+ mitra Frozeen sekarang. Stok lengkap, harga pabrik, siap kirim tiap hari.
             </p>
-            
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
               {['Halal MUI', 'BPOM', 'Higienis', 'Untung Besar'].map((item, i) => (
-                <div key={i} className="flex items-center gap-2 text-white/90">
+                <div key={i} className="flex items-center gap-2 text-white/90 bg-white/5 p-2 rounded-lg backdrop-blur-sm border border-white/10">
                   <CheckCircle size={18} className="text-green-400" />
                   <span className="text-sm font-bold">{item}</span>
                 </div>
@@ -169,11 +188,11 @@ const LandingPage: React.FC = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/register" className="bg-orange-500 text-white font-bold py-4 px-10 rounded-full shadow-lg shadow-orange-500/40 hover:bg-orange-600 transition hover:scale-105 flex items-center justify-center gap-2 text-lg">
+              <Link to="/register" className="bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold py-4 px-10 rounded-full shadow-lg shadow-orange-500/40 hover:scale-105 transition-transform flex items-center justify-center gap-2 text-lg border border-white/20">
                 Daftar Reseller Gratis <ArrowRight size={20} />
               </Link>
-              <Link to="/products" className="bg-white/10 backdrop-blur-md border border-white/30 text-white font-bold py-4 px-10 rounded-full hover:bg-white/20 transition flex items-center justify-center gap-2">
-                <Eye size={20} /> Lihat Katalog
+              <Link to="/products" className="bg-white/10 backdrop-blur-md border border-white/30 text-white font-bold py-4 px-10 rounded-full hover:bg-white/20 transition flex items-center justify-center gap-2 group">
+                <Eye size={20} className="group-hover:text-sky-300 transition-colors" /> Lihat Katalog
               </Link>
             </div>
           </div>
@@ -183,14 +202,14 @@ const LandingPage: React.FC = () => {
       {/* 2. Running Text Marquee */}
       <section className="bg-sky-900 dark:bg-sky-950 text-white py-3 overflow-hidden border-b border-sky-800">
         <div className="animate-marquee whitespace-nowrap flex gap-12 items-center">
-           {[1,2,3].map(i => (
-             <React.Fragment key={i}>
-                <span className="flex items-center gap-2 text-sm font-medium"><span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span> Ibu Rina (Bandung) baru saja bergabung menjadi Reseller</span>
-                <span className="flex items-center gap-2 text-sm font-medium"><span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span> Bapak Budi (Surabaya) stok ulang 500 pack Nugget</span>
-                <span className="flex items-center gap-2 text-sm font-medium"><span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span> Toko Frozen Jaya (Medan) mencairkan komisi Rp 5.400.000</span>
-                <span className="flex items-center gap-2 text-sm font-medium"><span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span> Ibu Sarah (Jakarta) bergabung 5 menit yang lalu</span>
-             </React.Fragment>
-           ))}
+          {[1, 2, 3].map(i => (
+            <React.Fragment key={i}>
+              <span className="flex items-center gap-2 text-sm font-medium"><span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span> Ibu Rina (Bandung) baru saja bergabung menjadi Reseller</span>
+              <span className="flex items-center gap-2 text-sm font-medium"><span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span> Bapak Budi (Surabaya) stok ulang 500 pack Nugget</span>
+              <span className="flex items-center gap-2 text-sm font-medium"><span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span> Toko Frozen Jaya (Medan) mencairkan komisi Rp 5.400.000</span>
+              <span className="flex items-center gap-2 text-sm font-medium"><span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span> Ibu Sarah (Jakarta) bergabung 5 menit yang lalu</span>
+            </React.Fragment>
+          ))}
         </div>
       </section>
 
@@ -219,7 +238,7 @@ const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-4">Kenapa Bisnis Frozen Food <span className="text-orange-500">Laris Manis?</span></h2>
           <p className="text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mb-16">Pasar makanan beku di Indonesia diprediksi naik 20% setiap tahunnya. Ini alasan kenapa Anda harus mulai sekarang.</p>
-          
+
           <div className="grid md:grid-cols-3 gap-8">
             {[
               { title: "Praktis & Cepat", desc: "Solusi utama ibu-ibu milenial yang sibuk. Tinggal goreng/kukus, siap saji dalam 5 menit." },
@@ -243,30 +262,30 @@ const LandingPage: React.FC = () => {
 
       {/* 5. Video Testimonials */}
       <section className="py-20 bg-white dark:bg-slate-900 overflow-hidden">
-         <div className="max-w-7xl mx-auto px-4">
-           <div className="text-center mb-12">
-             <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Kata Mereka yang Sudah Sukses</h2>
-             <p className="text-slate-600 dark:text-slate-400 mt-2">Ibu rumah tangga biasa yang kini punya penghasilan luar biasa.</p>
-           </div>
-           
-           <div className="grid md:grid-cols-3 gap-8">
-             {[1, 2, 3].map((i) => (
-               <div key={i} className="relative group cursor-pointer rounded-2xl overflow-hidden shadow-lg aspect-[9/16] md:aspect-[3/4]">
-                 <img src={`https://picsum.photos/seed/testi${i}/600/800`} alt="Testimoni" className="w-full h-full object-cover group-hover:scale-105 transition duration-700" />
-                 <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition"></div>
-                 <div className="absolute inset-0 flex items-center justify-center">
-                   <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center group-hover:scale-110 transition border border-white/50">
-                     <Play size={32} className="text-white fill-white ml-1" />
-                   </div>
-                 </div>
-                 <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 to-transparent text-white">
-                   <p className="font-bold text-lg">"Omset 15 Juta dari Dapur"</p>
-                   <p className="text-sm opacity-80">Ibu Ani, Jakarta</p>
-                 </div>
-               </div>
-             ))}
-           </div>
-         </div>
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Kata Mereka yang Sudah Sukses</h2>
+            <p className="text-slate-600 dark:text-slate-400 mt-2">Ibu rumah tangga biasa yang kini punya penghasilan luar biasa.</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="relative group cursor-pointer rounded-2xl overflow-hidden shadow-lg aspect-[9/16] md:aspect-[3/4]">
+                <img src={`https://picsum.photos/seed/testi${i}/600/800`} alt="Testimoni" className="w-full h-full object-cover group-hover:scale-105 transition duration-700" />
+                <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center group-hover:scale-110 transition border border-white/50">
+                    <Play size={32} className="text-white fill-white ml-1" />
+                  </div>
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 to-transparent text-white">
+                  <p className="font-bold text-lg">"Omset 15 Juta dari Dapur"</p>
+                  <p className="text-sm opacity-80">Ibu Ani, Jakarta</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* 6. Best Seller Product (Enhanced) */}
@@ -290,7 +309,7 @@ const LandingPage: React.FC = () => {
                   </div>
                   {/* Overlay Button */}
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                    <button 
+                    <button
                       onClick={() => setSelectedProduct(product)}
                       className="bg-white text-slate-900 font-bold py-2 px-6 rounded-full hover:bg-orange-500 hover:text-white transition transform translate-y-4 group-hover:translate-y-0 duration-300"
                     >
@@ -332,22 +351,22 @@ const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-6">Pilih Paket Usaha Anda</h2>
           <p className="text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mb-16">Modal minim, fasilitas lengkap. Pilih sesuai budget dan target pasar Anda.</p>
-          
+
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <PackageCard 
-              title="Paket Pemula" 
-              price="500rb" 
+            <PackageCard
+              title="Paket Pemula"
+              price="500rb"
               benefits={["Dapat 20 Pack Produk Best Seller", "Spanduk Ukuran 1x1m", "E-Katalog Promosi", "Masuk Grup WA Support"]}
             />
-            <PackageCard 
-              title="Paket Juragan" 
-              price="2.5jt" 
+            <PackageCard
+              title="Paket Juragan"
+              price="2.5jt"
               isPopular={true}
               benefits={["Dapat 120 Pack Produk Lengkap", "Spanduk Besar + X-Banner", "Kaos Frozeen Official", "Prioritas Pengiriman", "Free Ongkir Jawa"]}
             />
-            <PackageCard 
-              title="Paket Sultan" 
-              price="10jt" 
+            <PackageCard
+              title="Paket Sultan"
+              price="10jt"
               benefits={["Dapat 500 Pack Produk", "Pinjam Pakai Freezer 300L", "Full Branding Toko", "Mentor Bisnis Privat", "Garansi Retur 100%"]}
             />
           </div>
@@ -360,69 +379,75 @@ const LandingPage: React.FC = () => {
           <div>
             <h2 className="text-3xl font-bold mb-6">Keuntungan Menjadi Reseller Frozeen</h2>
             <div className="grid grid-cols-1 gap-6">
-               {[
-                 "Harga grosir termurah langsung dari pabrik",
-                 "Sistem dropship tersedia (kirim atas nama Anda)",
-                 "Marketing kit lengkap (foto, video, copywritting)",
-                 "Poin reward bisa ditukar emas & motor",
-                 "Tidak ada target penjualan bulanan"
-               ].map((benefit, i) => (
-                 <div key={i} className="flex items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition">
-                   <div className="bg-green-500 rounded-full p-1">
-                     <CheckCircle size={20} className="text-white" />
-                   </div>
-                   <span className="font-medium text-lg">{benefit}</span>
-                 </div>
-               ))}
+              {[
+                "Harga grosir termurah langsung dari pabrik",
+                "Sistem dropship tersedia (kirim atas nama Anda)",
+                "Marketing kit lengkap (foto, video, copywritting)",
+                "Poin reward bisa ditukar emas & motor",
+                "Tidak ada target penjualan bulanan"
+              ].map((benefit, i) => (
+                <div key={i} className="flex items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition">
+                  <div className="bg-green-500 rounded-full p-1">
+                    <CheckCircle size={20} className="text-white" />
+                  </div>
+                  <span className="font-medium text-lg">{benefit}</span>
+                </div>
+              ))}
             </div>
           </div>
           <div className="bg-gradient-to-br from-orange-500 to-red-600 p-8 rounded-3xl shadow-2xl relative overflow-hidden">
-             <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-3xl -mr-10 -mt-10"></div>
-             <h3 className="text-2xl font-bold mb-6">Simulasi Keuntungan</h3>
-             <div className="space-y-4 mb-8">
-               <div className="flex justify-between border-b border-white/30 pb-2">
-                 <span>Jual 10 Pack / Hari</span>
-                 <span className="font-bold">Untung Rp 50.000</span>
-               </div>
-               <div className="flex justify-between border-b border-white/30 pb-2">
-                 <span>Jual 30 Pack / Hari</span>
-                 <span className="font-bold">Untung Rp 150.000</span>
-               </div>
-               <div className="flex justify-between border-b border-white/30 pb-2 text-xl font-bold">
-                 <span>Total Sebulan (30 Hari)</span>
-                 <span>Rp 4.500.000</span>
-               </div>
-             </div>
-             <p className="text-sm opacity-90 mb-6">Bayangkan jika Anda punya 5 reseller di bawah Anda? Potensi income passive hingga puluhan juta!</p>
-             <Link to="/register" className="block w-full text-center bg-white text-orange-600 font-bold py-3 rounded-xl hover:bg-slate-100 transition">
-               Hitung Potensi Saya
-             </Link>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-3xl -mr-10 -mt-10"></div>
+            <h3 className="text-2xl font-bold mb-6">Simulasi Keuntungan</h3>
+            <div className="space-y-4 mb-8">
+              <div className="flex justify-between border-b border-white/30 pb-2">
+                <span>Jual 10 Pack / Hari</span>
+                <span className="font-bold">Untung Rp 50.000</span>
+              </div>
+              <div className="flex justify-between border-b border-white/30 pb-2">
+                <span>Jual 30 Pack / Hari</span>
+                <span className="font-bold">Untung Rp 150.000</span>
+              </div>
+              <div className="flex justify-between border-b border-white/30 pb-2 text-xl font-bold">
+                <span>Total Sebulan (30 Hari)</span>
+                <span>Rp 4.500.000</span>
+              </div>
+            </div>
+            <p className="text-sm opacity-90 mb-6">Bayangkan jika Anda punya 5 reseller di bawah Anda? Potensi income passive hingga puluhan juta!</p>
+            <Link to="/register" className="block w-full text-center bg-white text-orange-600 font-bold py-3 rounded-xl hover:bg-slate-100 transition">
+              Hitung Potensi Saya
+            </Link>
           </div>
         </div>
       </section>
 
+      {/* NEW: Success Stories */}
+      <SuccessStoriesSection />
+
+      {/* NEW: Cara Kerja */}
+      <HowItWorksSection />
+
       {/* 9. Warehouse Map */}
       <section className="py-20 bg-white dark:bg-slate-900">
         <div className="max-w-7xl mx-auto px-4 text-center">
-           <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">Jangkauan Pengiriman</h2>
-           <p className="text-slate-600 dark:text-slate-300 mb-10">Gudang kami tersebar di kota-kota besar untuk menjamin pengiriman cepat dan hemat ongkir.</p>
-           <div className="bg-sky-50 dark:bg-slate-800 rounded-3xl p-8 md:p-16 relative overflow-hidden min-h-[400px] flex items-center justify-center">
-             <div className="absolute inset-0 opacity-10 bg-[url('https://upload.wikimedia.org/wikipedia/commons/b/bb/Indonesia_provinces_blank_map.svg')] bg-contain bg-center bg-no-repeat dark:invert"></div>
-             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 relative z-10 w-full max-w-4xl">
-               {[
-                 {city: 'Jakarta', address: 'Gudang Pusat Cakung'},
-                 {city: 'Surabaya', address: 'Rungkut Industri'},
-                 {city: 'Medan', address: 'Kawasan KIM 2'},
-                 {city: 'Makassar', address: 'Pergudangan Parangloe'},
-               ].map((loc, i) => (
-                 <div key={i} className="bg-white dark:bg-slate-700 p-6 rounded-xl shadow-lg border-b-4 border-orange-500 animate-fade-in-up" style={{animationDelay: `${i*100}ms`}}>
-                   <MapPin className="text-orange-500 mx-auto mb-3" size={32} />
-                   <h4 className="font-bold text-xl text-slate-900 dark:text-white mb-1">{loc.city}</h4>
-                   <p className="text-xs text-slate-500 dark:text-slate-300">{loc.address}</p>
-                 </div>
-               ))}
-             </div>
-           </div>
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">Jangkauan Pengiriman</h2>
+          <p className="text-slate-600 dark:text-slate-300 mb-10">Gudang kami tersebar di kota-kota besar untuk menjamin pengiriman cepat dan hemat ongkir.</p>
+          <div className="bg-sky-50 dark:bg-slate-800 rounded-3xl p-8 md:p-16 relative overflow-hidden min-h-[400px] flex items-center justify-center">
+            <div className="absolute inset-0 opacity-10 bg-[url('https://upload.wikimedia.org/wikipedia/commons/b/bb/Indonesia_provinces_blank_map.svg')] bg-contain bg-center bg-no-repeat dark:invert"></div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 relative z-10 w-full max-w-4xl">
+              {[
+                { city: 'Jakarta', address: 'Gudang Pusat Cakung' },
+                { city: 'Surabaya', address: 'Rungkut Industri' },
+                { city: 'Medan', address: 'Kawasan KIM 2' },
+                { city: 'Makassar', address: 'Pergudangan Parangloe' },
+              ].map((loc, i) => (
+                <div key={i} className="bg-white dark:bg-slate-700 p-6 rounded-xl shadow-lg border-b-4 border-orange-500 animate-fade-in-up" style={{ animationDelay: `${i * 100}ms` }}>
+                  <MapPin className="text-orange-500 mx-auto mb-3" size={32} />
+                  <h4 className="font-bold text-xl text-slate-900 dark:text-white mb-1">{loc.city}</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-300">{loc.address}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
@@ -431,14 +456,22 @@ const LandingPage: React.FC = () => {
         <div className="max-w-3xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-center text-slate-900 dark:text-white mb-10">Pertanyaan Sering Diajukan</h2>
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-8 space-y-2">
-            <FaqItem q="Berapa modal awal untuk bergabung?" a="Anda bisa mulai dari Paket Pemula Rp 500.000 saja sudah mendapatkan produk senilai modal dan fasilitas marketing kit." />
-            <FaqItem q="Apakah produk tahan lama dalam pengiriman?" a="Kami menggunakan kemasan thermal khusus + ice gel, tahan hingga 2x24 jam perjalanan. Untuk luar kota kami sarankan pakai Paxel/Layanan Esok Sampai." />
-            <FaqItem q="Bagaimana jika barang rusak saat diterima?" a="Kami berikan Garansi 100% Ganti Baru jika produk basi atau rusak karena kesalahan pengiriman (S&K Berlaku)." />
-            <FaqItem q="Apakah bisa sistem dropship?" a="Sangat bisa! Anda tinggal input alamat pembeli, kami yang packing dan kirim atas nama toko Anda. Tanpa ribet stok." />
-            <FaqItem q="Apakah perlu memiliki freezer khusus?" a="Untuk awal tidak wajib. Freezer kulkas rumah tangga 1 pintu cukup untuk menampung Paket Pemula." />
+            {[
+              { q: "Berapa modal awal untuk bergabung?", a: "Anda bisa mulai dari Paket Pemula Rp 500.000 saja sudah mendapatkan produk senilai modal dan fasilitas marketing kit." },
+              { q: "Apakah produk tahan lama dalam pengiriman?", a: "Kami menggunakan kemasan thermal khusus + ice gel, tahan hingga 2x24 jam perjalanan. Untuk luar kota kami sarankan pakai Paxel/Layanan Esok Sampai." },
+              { q: "Bagaimana jika barang rusak saat diterima?", a: "Kami berikan Garansi 100% Ganti Baru jika produk basi atau rusak karena kesalahan pengiriman (S&K Berlaku)." },
+              { q: "Apakah bisa sistem dropship?", a: "Sangat bisa! Anda tinggal input alamat pembeli, kami yang packing dan kirim atas nama toko Anda. Tanpa ribet stok." },
+              { q: "Apakah perlu memiliki freezer khusus?", a: "Untuk awal tidak wajib. Freezer kulkas rumah tangga 1 pintu cukup untuk menampung Paket Pemula." },
+              ...EXTRA_FAQ
+            ].map((faq, i) => (
+              <FaqItem key={i} q={faq.q} a={faq.a} />
+            ))}
           </div>
         </div>
       </section>
+
+      {/* NEW: Instagram Feed */}
+      <InstagramFeedSection />
 
       {/* 11. Final CTA */}
       <section className="py-24 bg-gradient-to-r from-sky-600 to-blue-700 text-white relative overflow-hidden">
@@ -446,24 +479,24 @@ const LandingPage: React.FC = () => {
         <div className="max-w-5xl mx-auto px-4 text-center relative z-10">
           <h2 className="text-4xl md:text-5xl font-extrabold mb-6">Siap Menghasilkan Jutaan dari Rumah?</h2>
           <p className="text-xl text-sky-100 mb-10 max-w-2xl mx-auto">Jangan sampai keduluan tetangga! Slot reseller eksklusif per kelurahan terbatas.</p>
-          
+
           <div className="bg-white dark:bg-slate-800 p-6 md:p-2 rounded-2xl shadow-2xl max-w-3xl mx-auto">
-             <form onSubmit={handleQuickReg} className="flex flex-col md:flex-row gap-4">
-               <input 
-                 required placeholder="Nama Lengkap" 
-                 className="flex-1 p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
-                 value={quickReg.name} onChange={e => setQuickReg({...quickReg, name: e.target.value})}
-               />
-               <input 
-                 required placeholder="Nomor WhatsApp" type="tel"
-                 className="flex-1 p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
-                 value={quickReg.phone} onChange={e => setQuickReg({...quickReg, phone: e.target.value})}
-               />
-               <button type="submit" className="bg-orange-500 text-white font-bold py-4 px-8 rounded-xl hover:bg-orange-600 transition shadow-lg whitespace-nowrap">
-                 Daftar Sekarang
-               </button>
-             </form>
-             <p className="text-slate-400 text-xs mt-3 md:mb-1">*Data Anda aman. CS kami akan menghubungi via WhatsApp.</p>
+            <form onSubmit={handleQuickReg} className="flex flex-col md:flex-row gap-4">
+              <input
+                required placeholder="Nama Lengkap"
+                className="flex-1 p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                value={quickReg.name} onChange={e => setQuickReg({ ...quickReg, name: e.target.value })}
+              />
+              <input
+                required placeholder="Nomor WhatsApp" type="tel"
+                className="flex-1 p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                value={quickReg.phone} onChange={e => setQuickReg({ ...quickReg, phone: e.target.value })}
+              />
+              <button type="submit" className="bg-orange-500 text-white font-bold py-4 px-8 rounded-xl hover:bg-orange-600 transition shadow-lg whitespace-nowrap">
+                Daftar Sekarang
+              </button>
+            </form>
+            <p className="text-slate-400 text-xs mt-3 md:mb-1">*Data Anda aman. CS kami akan menghubungi via WhatsApp.</p>
           </div>
         </div>
       </section>
@@ -473,7 +506,7 @@ const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           <div>
             <div className="flex items-center gap-2 mb-6">
-               <div className="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center">
                 <span className="text-white font-bold text-xl">F</span>
               </div>
               <span className="font-bold text-2xl text-white tracking-tight">Frozeen</span>
@@ -489,7 +522,7 @@ const LandingPage: React.FC = () => {
               ))}
             </div>
           </div>
-          
+
           <div>
             <h4 className="font-bold text-white text-lg mb-6">Informasi</h4>
             <ul className="space-y-3 text-sm">
@@ -530,14 +563,14 @@ const LandingPage: React.FC = () => {
             </ul>
           </div>
         </div>
-        
+
         <div className="max-w-7xl mx-auto px-4 pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
           <p>&copy; 2025 Frozeen Indonesia. All rights reserved.</p>
           <div className="flex gap-4 grayscale opacity-50">
-             <div className="h-6 w-12 bg-white rounded"></div> {/* Bank Logo Mockup */}
-             <div className="h-6 w-12 bg-white rounded"></div>
-             <div className="h-6 w-12 bg-white rounded"></div>
-             <div className="h-6 w-12 bg-white rounded"></div>
+            <div className="h-6 w-12 bg-white rounded"></div> {/* Bank Logo Mockup */}
+            <div className="h-6 w-12 bg-white rounded"></div>
+            <div className="h-6 w-12 bg-white rounded"></div>
+            <div className="h-6 w-12 bg-white rounded"></div>
           </div>
         </div>
       </footer>

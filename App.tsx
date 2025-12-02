@@ -34,6 +34,7 @@ import MemberOrders from './src/member/pages/MemberOrders';
 import MemberProfile from './src/member/pages/MemberProfile';
 import MemberWishlist from './src/member/pages/MemberWishlist';
 import UpgradeReseller from './src/member/pages/UpgradeReseller';
+import ResellerHub from './pages/ResellerHub';
 
 // Placeholder for missing modules to prevent crash
 const PlaceholderPage = ({ title }: { title: string }) => (
@@ -148,11 +149,11 @@ const App = () => {
           {/* RESELLER ROUTES (Protected by ResellerLayout Logic) */}
           <Route path="/reseller" element={<ResellerLayout />}>
             <Route index element={<ResellerDashboard />} />
-            <Route path="orders" element={<PlaceholderPage title="Riwayat Pesanan" />} />
-            <Route path="income" element={<PlaceholderPage title="Komisi & Saldo" />} />
-            <Route path="network" element={<PlaceholderPage title="Downline Saya" />} />
+            <Route path="orders" element={<MyOrders />} />
+            <Route path="income" element={<MyIncome />} />
+            <Route path="network" element={<MyNetwork />} />
             <Route path="marketing" element={<MarketingTools />} />
-            <Route path="academy" element={<PlaceholderPage title="Akademi Juragan" />} />
+            <Route path="academy" element={<ResellerHub />} />
           </Route>
 
           {/* MEMBER ROUTES (Protected by MemberLayout Logic) */}
